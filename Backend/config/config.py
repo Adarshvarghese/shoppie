@@ -9,7 +9,10 @@ uri = f"mongodb+srv://{encoded_username}:{encoded_password}@dbcluster.ynwoblw.mo
 
 # Create a new client and connect to the server
 client = MongoClient(uri)
+db=client.Shoppie
 
+
+customers_collection= db['customers']
 # Send a ping to confirm a successful connection
 try:
     client.admin.command('ping')
