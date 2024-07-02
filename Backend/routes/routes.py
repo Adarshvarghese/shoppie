@@ -15,3 +15,4 @@ def get_all_customers(id:str):
     serialized_customers=convert_customer_details(customers)
     print(serialized_customers)
     return {"data":serialized_customers,"message":"random message"}
+
