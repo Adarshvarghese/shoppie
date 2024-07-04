@@ -10,29 +10,22 @@ import datetime
 from config.config import customers_collection
 from models.models import Customer
 import bcrypt
-from utils.utils import create_access_token, create_refresh_token
-
-endpoints=APIRouter()
-
+from utils.auth_utils import create_access_token, create_refresh_token
+from pydantic import ValidationError
 
 
-from bson import ObjectId
-from schema.schemas import list_serial
 
-@endpoints.get("/customers/get")
-def get_all_customers():
-    customers = list_serial(customers_collection.find())
 
-    return {"data": customers, "message": "Customers retrieved successfully"} 
+common_endpoints=APIRouter()
 
-from fastapi import HTTPException
-
-@endpoints.post("/customers/register")
+@common_endpoints.post("/customers/register")
 def register_customer(customer: Customer):
     customer_id = str(uuid.uuid4())
     customer_dict = dict(customer)
     customer_dict["cust_id"] = customer_id
     customer_dict["created_at"] = datetime.datetime.now()
+    if customer_dict["dob"]:
+        customer_dict["dob"] = customer_dict["dob"].isoformat()
 
     # Hash the password
     hashed_password = bcrypt.hashpw(customer_dict["password"].encode('utf-8'), bcrypt.gensalt())
@@ -40,7 +33,9 @@ def register_customer(customer: Customer):
 
     try:
         result = customers_collection.insert_one(customer_dict)
-        access_token = create_access_token(customer_id)
+        customer = customers_collection.find_one({"email": customer_dict["email"]})
+        print("customers>>>>>>>>>>>>>>>>>>>>>", customer["cust_id"])
+        access_token = create_access_token(customer["cust_id"])
         refresh_token = create_refresh_token(customer_id)
 
         if result.inserted_id:
@@ -53,17 +48,7 @@ def register_customer(customer: Customer):
     except HTTPException as e:
         print("inide >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         raise HTTPException(status_code=400, detail=str(e))
+    except ValidationError as e:
+        print("validation error >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",e)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Customer not registered")
-@endpoints.get('/customers/{id}')
-def get_by_customer_id(id:str):
-    try:
-        customers = customers_collection.find_one({"_id": ObjectId(id)})
-        print("type of the customes id", type(customers["_id"]))
-        customers["_id"] = str(customers["_id"])  # Convert _id to string
-        print(customers, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        return {"data": customers, "message": "Customer retrieved successfully"}
-    except ValueError as e:
-        print(e)
-    except:
-        return {"data": None, "message": "Customer not found"}
+        raise HTTPException(status_code=500, detail=f"{e}Customer not registered")
