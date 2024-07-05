@@ -13,12 +13,13 @@ import bcrypt
 from utils.auth_utils import create_access_token, create_refresh_token, get_current_user
 from pydantic import ValidationError
 from passlib.context import CryptContext
-customer_endpoints=APIRouter()
-
-
-
 from bson import ObjectId
 from schema.schemas import list_serial
+from fastapi import HTTPException
+
+
+
+customer_endpoints=APIRouter()
 
 @customer_endpoints.get("/customers/get")
 def get_all_customers():
@@ -26,40 +27,8 @@ def get_all_customers():
 
     return {"data": customers, "message": "Customers retrieved successfully"} 
 
-from fastapi import HTTPException
 
-# @endpoints.post("/customers/register")
-# def register_customer(customer: Customer):
-#     customer_id = str(uuid.uuid4())
-#     customer_dict = dict(customer)
-#     customer_dict["cust_id"] = customer_id
-#     customer_dict["created_at"] = datetime.datetime.now()
-#     if customer_dict["dob"]:
-#         customer_dict["dob"] = customer_dict["dob"].isoformat()
 
-#     # Hash the password
-#     hashed_password = bcrypt.hashpw(customer_dict["password"].encode('utf-8'), bcrypt.gensalt())
-#     customer_dict["password"] = hashed_password
-
-#     try:
-#         result = customers_collection.insert_one(customer_dict)
-#         access_token = create_access_token(customer_id)
-#         refresh_token = create_refresh_token(customer_id)
-
-#         if result.inserted_id:
-#             return {
-#                 "message": "Customer registered successfully",
-#                 "customer_id": customer_id,
-#                 "access_token": access_token,
-#                 "refresh_token": refresh_token
-#             }
-#     except HTTPException as e:
-#         print("inide >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-#         raise HTTPException(status_code=400, detail=str(e))
-#     except ValidationError as e:
-#         print("validation error >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",e)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"{e}Customer not registered")
 @customer_endpoints.get('/customers/{id}')
 def get_by_customer_id(id:str):
     try:
