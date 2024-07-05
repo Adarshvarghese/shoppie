@@ -11,6 +11,7 @@ password = config("PASS_WORD")
 # encoded_password = quote_plus(password)
 # uri = f"mongodb+srv://{encoded_username}:{encoded_password}@dbcluster.ynwoblw.mongodb.net/?retryWrites=true&w=majority&appName=DbCluster"
 uri = f"mongodb+srv://{username}:{password}@cluster0.iyiykhm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = f"mongodb+srv://{username}:{password}@dbcluster.ynwoblw.mongodb.net/?retryWrites=true&w=majority&appName=DbCluster"
 # Create a new client and connect to the server
 client = MongoClient(uri)
 db=client.Shoppie
