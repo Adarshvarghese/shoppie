@@ -58,3 +58,11 @@ class Customer(BaseModel):
     
 
 
+class CustomerLogin(BaseModel):
+    email: EmailStr
+    password: str
+    
+    # @validator('password')
+    # def validate_password(cls, value):
+    #     if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[a-zA-Z\d\W_]+$', value):
+    #         raise HTTPException(status_code=400, detail={"errorCode":1001,"message": "Password must contain at least 8 characters,"})

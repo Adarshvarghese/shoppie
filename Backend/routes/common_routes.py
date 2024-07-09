@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from config.config import customers_collection
 from serializer.serializer import convert_all_customer_details,convert_customer_details
 from bson import ObjectId

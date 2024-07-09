@@ -8,14 +8,17 @@ from pydantic import BaseModel
 import uuid
 import datetime 
 from config.config import customers_collection
-from models.models import Customer
+from models.models import Customer,CustomerLogin
 import bcrypt
 from utils.auth_utils import create_access_token, create_refresh_token, get_current_user
 from pydantic import ValidationError
 from passlib.context import CryptContext
 from bson import ObjectId
 from schema.schemas import list_serial
+import base64
 from fastapi import HTTPException
+
+
 
 
 
@@ -59,3 +62,24 @@ def get_customer_details(user: dict = Depends(get_current_user)):
         return {"data": customer, "message": "Customers retrieved successfully"}
     except Exception as e:
         print(">>>>>>>>>>>>>>>",e)
+        
+@customer_endpoints.post("/customers/login")
+def login_customer(login_request: CustomerLogin):
+    try:
+        customer = customers_collection.find_one({"email": login_request.email})
+        stored_password_hash = customer["password"]
+        hashed_input_password = bcrypt.hashpw(login_request.password.encode('utf-8'),stored_password_hash)
+        if hashed_input_password == stored_password_hash:
+            access_token = create_access_token(customer["cust_id"])
+            refresh_token = create_refresh_token(customer["cust_id"])
+            print("Authentication successful!")
+            return {
+            "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
+
+        else:
+            raise HTTPException(status_code=400, detail="Invalid email or password")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
